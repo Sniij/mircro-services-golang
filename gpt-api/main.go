@@ -74,7 +74,7 @@ func Handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	}
 
 	// Initialize OpenAI client
-	apiKey := os.Getenv("API_KEY")
+	apiKey := os.Getenv("GPT_API_KEY")
 	client := openai.NewClient(apiKey)
 
 	gptResponse, err := ChatGPT(req, client)

@@ -185,9 +185,9 @@ func Handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	// 1. 환경 변수 불러오기
 	awsRegion := os.Getenv("AWS_REGION")
 	bucketName := os.Getenv("S3_BUCKET_NAME")
-	githubToken := os.Getenv("GITHUB_TOKEN")
-	owner := os.Getenv("GITHUB_OWNER")
-	repo := os.Getenv("GITHUB_REPO")
+	githubToken := os.Getenv("TOKEN_GITHUB")
+	owner := os.Getenv("OWNER_GITHUB")
+	repo := os.Getenv("REPO_GITHUB")
 
 	// 환경 변수 검증
 	if awsRegion == "" || bucketName == "" || githubToken == "" || owner == "" || repo == "" {
