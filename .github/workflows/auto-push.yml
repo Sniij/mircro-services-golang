@@ -1,0 +1,48 @@
+name: CI/CD for Auto Push Project
+
+on:
+  push:
+    branches:
+      - auto-push
+  pull_request:
+    branches:
+      - auto-push
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.23'
+
+    - name: Install dependencies
+      run: go mod tidy
+
+    - name: Build for ARM64 on Amazon Linux 2023
+      env:
+        GOOS: linux
+        GOARCH: arm64
+        CGO_ENABLED: 0
+      run: go build -tags lambda.norpc -o bootstrap main.go
+
+    - name: Deploy to AWS Lambda
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        LAMBDA_FUNCTION_NAME: ${{ secrets.AUTO_PUSH_LAMBDA_FUNCTION_NAME }}
+        CRAWLING_SERVER: ${{ secrets.CRAWLING_SERVER }}
+        CONVERT_SERVER: ${{ secrets.CONVERT_SERVER }}
+        UPLOAD_TO_S3_SEVER: ${{ secrets.UPLOAD_TO_S3_SEVER }}
+        UPLOAD_TO_GITHUB_SERVER: ${{ secrets.UPLOAD_TO_GITHUB_SERVER }}
+      run: |
+        zip function.zip bootstrap
+        aws lambda update-function-code \
+          --function-name $LAMBDA_FUNCTION_NAME \
+          --zip-file fileb://function.zip
