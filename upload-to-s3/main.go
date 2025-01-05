@@ -76,7 +76,7 @@ func LambdaHandler(ctx context.Context, request events.APIGatewayProxyRequest) (
 		}, nil
 	}
 	// S3 설정 초기화
-	cfg, err := config.LoadDefaultConfig(ctx)
+	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("ap-northeast-2"))
 	if err != nil {
 		log.Fatalf("failed to load AWS config: %v", err)
 	}
