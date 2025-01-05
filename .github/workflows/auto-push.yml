@@ -7,7 +7,9 @@ on:
   pull_request:
     branches:
       - auto-push
-
+defaults:
+  run:
+    working-directory: ./auto-push
 jobs:
   deploy:
     runs-on: ubuntu-latest
