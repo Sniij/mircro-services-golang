@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"sync"
@@ -34,9 +35,15 @@ func init() {
 			log.Println("No .env file found. Falling back to system environment variables.")
 		}
 	}
-
-	BASE_URL = os.Getenv("BASE_URL")
-	BASE_URL_DETAIL = os.Getenv("BASE_URL_DETAIL")
+	var err error
+	BASE_URL, err = url.QueryUnescape(os.Getenv("BASE_URL"))
+	if err != nil {
+		log.Printf("failed to get server url: %v", err)
+	}
+	BASE_URL_DETAIL, err = url.QueryUnescape(os.Getenv("BASE_URL_DETAIL"))
+	if err != nil {
+		log.Printf("failed to get server url: %v", err)
+	}
 }
 
 // FetchHTML fetches the HTML document from a given URL.
