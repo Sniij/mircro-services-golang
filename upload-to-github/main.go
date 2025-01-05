@@ -21,7 +21,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// S3Downloader downloads files from S3
 type S3Downloader struct {
 	Client     *s3.Client
 	BucketName string
@@ -40,7 +39,6 @@ func main() {
 	lambda.Start(Handler)
 }
 
-// ListFiles lists all files in a specific S3 path
 func (d *S3Downloader) ListFiles(ctx context.Context, prefix string) ([]string, error) {
 	var files []string
 	paginator := s3.NewListObjectsV2Paginator(d.Client, &s3.ListObjectsV2Input{
@@ -62,7 +60,6 @@ func (d *S3Downloader) ListFiles(ctx context.Context, prefix string) ([]string, 
 	return files, nil
 }
 
-// DownloadFile downloads a file from S3
 func (d *S3Downloader) DownloadFile(ctx context.Context, key string) ([]byte, error) {
 	output, err := d.Client.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(d.BucketName),
@@ -82,14 +79,12 @@ func (d *S3Downloader) DownloadFile(ctx context.Context, key string) ([]byte, er
 	return buf.Bytes(), nil
 }
 
-// GitHubUploader uploads files to GitHub
 type GitHubUploader struct {
 	Client *github.Client
 	Owner  string
 	Repo   string
 }
 
-// UploadFiles uploads multiple files to GitHub in a single commit
 func (u *GitHubUploader) UploadFiles(ctx context.Context, files map[string][]byte, commitMessage string) error {
 	// Get the reference to the HEAD of the default branch (e.g., main)
 	ref, _, err := u.Client.Git.GetRef(ctx, u.Owner, u.Repo, "heads/main")
@@ -180,6 +175,7 @@ func (u *GitHubUploader) UploadFile(ctx context.Context, path string, content []
 
 	return nil
 }
+
 func Handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
 	// 1. 환경 변수 불러오기
