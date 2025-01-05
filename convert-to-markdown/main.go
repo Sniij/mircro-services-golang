@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	netURL "net/url"
 	"os"
 	"sync"
 
@@ -40,7 +41,10 @@ func init() {
 
 // FetchGPT processes text using the custom GPT server.
 func FetchGPT(gptRequest GPTRequest) (string, error) {
-	serverURL := os.Getenv("GPT_SERVER")
+	serverURL, err := netURL.QueryUnescape(os.Getenv("GPT_SERVER"))
+	if err != nil {
+		return "", fmt.Errorf("failed to get server url: %v", err)
+	}
 
 	body, err := json.Marshal(gptRequest)
 	if err != nil {
@@ -104,19 +108,19 @@ func Handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			log.Printf("Error processing article with GPT that content: %v", err)
 			return
 		}
-		cleanedContent, err = FetchGPT(GPTRequest{Content: article.Content, Prompt: os.Getenv("PROMPT_CONTENT_2")})
+		cleanedContent2, err := FetchGPT(GPTRequest{Content: cleanedContent, Prompt: os.Getenv("PROMPT_CONTENT_2")})
 		if err != nil {
 			log.Printf("Error processing article with GPT that content: %v", err)
 			return
 		}
 
-		cleanedContent, err = FetchGPT(GPTRequest{Content: article.Content, Prompt: os.Getenv("PROMPT_CONTENT_3")})
+		cleanedContent3, err := FetchGPT(GPTRequest{Content: cleanedContent2, Prompt: os.Getenv("PROMPT_CONTENT_3")})
 		if err != nil {
 			log.Printf("Error processing article with GPT that content: %v", err)
 			return
 		}
 
-		article.Content = cleanedContent
+		article.Content = cleanedContent3
 	}()
 	go func() {
 		defer wg.Done()
