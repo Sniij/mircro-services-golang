@@ -7,7 +7,9 @@ on:
   pull_request:
     branches:
       - upload-to-github
-
+defaults:
+  run:
+    working-directory: ./upload-to-github
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -37,7 +39,6 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: ${{ secrets.AWS_REGION }}
         LAMBDA_FUNCTION_NAME: ${{ secrets.UPLOAD_GITHUB_LAMBDA_FUNCTION_NAME }}
-        AWS_REGION: ${{ secrets.AWS_REGION }}
         S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
         TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
         OWNER_GITHUB: ${{ secrets.OWNER_GITHUB }}
