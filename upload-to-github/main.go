@@ -179,7 +179,7 @@ func (u *GitHubUploader) UploadFile(ctx context.Context, path string, content []
 func Handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
 	// 1. 환경 변수 불러오기
-	awsRegion := os.Getenv("AWS_REGION")
+	awsRegion := "ap-northeast-2"
 	bucketName := os.Getenv("S3_BUCKET_NAME")
 	githubToken := os.Getenv("TOKEN_GITHUB")
 	owner := os.Getenv("OWNER_GITHUB")
