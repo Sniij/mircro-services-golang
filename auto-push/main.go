@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	netURL "net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -125,7 +126,10 @@ func processArticles(url, category string) {
 	wg.Wait()
 }
 func Scrape(url string) ([]NewsArticle, error) {
-	serverURL := os.Getenv("CRAWLING_SERVER")
+	serverURL, err := netURL.QueryUnescape(os.Getenv("CRAWLING_SERVER"))
+	if err != nil {
+		return []NewsArticle{}, fmt.Errorf("failed to get server url: %v", err)
+	}
 
 	// HTTP 요청 생성
 	req, err := http.NewRequest("GET", serverURL, nil)
@@ -167,8 +171,10 @@ func Scrape(url string) ([]NewsArticle, error) {
 
 func ConvertToMarkdown(article NewsArticle) ([]byte, error) {
 
-	serverURL := os.Getenv("CONVERT_SERVER")
-
+	serverURL, err := netURL.QueryUnescape(os.Getenv("CONVERT_SERVER"))
+	if err != nil {
+		return []byte{}, fmt.Errorf("failed to get server url: %v", err)
+	}
 	// HTTP 요청 객체 생성
 	reqBody, err := json.Marshal(article)
 	if err != nil {
@@ -213,7 +219,11 @@ func UploadToS3(markdown []byte, category string, i int) {
 	}
 	cleanedMarkdown := cleanANSI(string(markdown))
 
-	serverURL := os.Getenv("UPLOAD_TO_S3_SEVER")
+	serverURL, err := netURL.QueryUnescape(os.Getenv("UPLOAD_TO_S3_SEVER"))
+	if err != nil {
+		log.Printf("failed to get server url: %v", err)
+		return
+	}
 
 	// HTTP 요청 생성
 	req, err := http.NewRequest("POST", serverURL, bytes.NewBuffer([]byte(cleanedMarkdown)))
@@ -254,7 +264,11 @@ func UploadToS3(markdown []byte, category string, i int) {
 }
 
 func UploadToGitHub() {
-	serverURL := os.Getenv("UPLOAD_TO_GITHUB_SERVER")
+	serverURL, err := netURL.QueryUnescape(os.Getenv("UPLOAD_TO_GITHUB_SERVER"))
+	if err != nil {
+		log.Printf("failed to get server url: %v", err)
+		return
+	}
 
 	// HTTP 요청 생성
 	req, err := http.NewRequest("GET", serverURL, nil)
